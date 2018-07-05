@@ -16,19 +16,20 @@ def versioningExecuteCommand = { cmd ->
 
 ext {
     versioning = [
-            lng: versioningExecuteCommand(['git', 'for-each-ref', '--format="%(refname:short)"', '--sort=-authordate', '--count=1', 'refs/tags']),
-            branch: versioningExecuteCommand(['git', 'rev-parse', '--abbrev-ref', 'HEAD']),
-            tag: versioningExecuteCommand(['git', 'tag']),
+            lastTag : versioningExecuteCommand(['git', 'for-each-ref', '--format="%(refname:short)"', '--sort=-authordate', '--count=1', 'refs/tags']).toString(),
+            branch  : versioningExecuteCommand(['git', 'rev-parse', '--abbrev-ref', 'HEAD']),
             describe: versioningExecuteCommand(['git', 'describe', '--tags']),
-            commit: versioningExecuteCommand(['git', 'rev-parse', '--short', 'HEAD']),
-
+            commit  : versioningExecuteCommand(['git', 'rev-parse', '--short', 'HEAD']),
+            commitsCount: versioningExecuteCommand(['git', 'rev-list','--all', '--count']).toInteger()
     ]
+    versioning.describeBranched = "$versioning.describe-$versioning.branch"
 }
 
 task versioningPrintVersion() {
-    println("Long: $versioning.lng")
+    println("Last Tag: $versioning.lastTag")
     println("Branch: $versioning.branch")
-    println("Tag: $versioning.tag")
     println("Describe: $versioning.describe")
     println("Commit: $versioning.commit")
+    println("Branched: $versioning.describeBranched")
+    println("Commits count: $versioning.commitsCount")
 }
