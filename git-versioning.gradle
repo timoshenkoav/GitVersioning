@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.5.0'
+    }
+}
+import org.ajoberstar.grgit.Grgit
+
+def versioningExecuteCommand = { cmd ->
+    def stdout = new ByteArrayOutputStream()
+    def stderr = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine cmd
+            standardOutput = stdout
+            errorOutput = stderr
+        }
+        return stdout.toString().trim().replaceAll("\"", "")
+    } catch (ignored) {
+        println(ignored.toString())
+        return null
+    }
+}
+
+ext {
+    git = Grgit.open(currentDir: projectDir)
+    versioning = [
+            code: versioningExecuteCommand(['git', 'for-each-ref', '--format="%(refname:short)"', '--sort=-authordate', '--count=1', 'refs/tags'])
+    ]
+}
+
+task versioningPrintVersion() {
+    println("Version Code: $versioning.code")
+}
